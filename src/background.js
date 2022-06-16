@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const path = require("path");
 const fs = require("fs/promises");
+const { constants } = require("fs");
 
 /**
  * Save settings from localstorage to settings.json.
@@ -21,18 +22,24 @@ async function save(win) {
 
 /**
  * Load settings from settings.json and set localStorage.
+ * persistent?
  */
 async function load(win) {
-  const settings = JSON.parse(await fs.readFile("./settings.json"));
-  let setStr = "";
+  fs.access("./settings.json", constants.F_OK)
+    .then(async () => {
+      const settings = JSON.parse(await fs.readFile("./settings.json"));
 
-  if (settings.speaker)
-    setStr = `localStorage.setItem('speaker', '${settings.speaker}');`;
+      let setStr = "";
 
-  if (settings.screen)
-    setStr += `localStorage.setItem('screen', '${settings.screen}');`;
+      if (settings.speaker)
+        setStr = `localStorage.setItem('speaker', '${settings.speaker}');`;
 
-  win.webContents.executeJavaScript(setStr);
+      if (settings.screen)
+        setStr += `localStorage.setItem('screen', '${settings.screen}');`;
+
+      win.webContents.executeJavaScript(setStr);
+    })
+    .catch(() => console.log("settings.json doesn't exist"));
 }
 
 async function createWindow() {
