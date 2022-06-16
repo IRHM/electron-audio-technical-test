@@ -1,7 +1,41 @@
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const path = require("path");
+const fs = require("fs/promises");
 
-function createWindow() {
+/**
+ * Save settings from localstorage to settings.json.
+ */
+async function save(win) {
+  const speaker = await win.webContents.executeJavaScript(
+    "localStorage.getItem('speaker')"
+  );
+  const screen = await win.webContents.executeJavaScript(
+    "localStorage.getItem('screen')"
+  );
+
+  fs.writeFile(
+    "./settings.json",
+    JSON.stringify({ speaker: speaker, screen: screen })
+  );
+}
+
+/**
+ * Load settings from settings.json and set localStorage.
+ */
+async function load(win) {
+  const settings = JSON.parse(await fs.readFile("./settings.json"));
+  let setStr = "";
+
+  if (settings.speaker)
+    setStr = `localStorage.setItem('speaker', '${settings.speaker}');`;
+
+  if (settings.screen)
+    setStr += `localStorage.setItem('screen', '${settings.screen}');`;
+
+  win.webContents.executeJavaScript(setStr);
+}
+
+async function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
@@ -9,6 +43,9 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
     },
   });
+
+  // Load settings
+  await load(win);
 
   // Register ipc listener for get-displays
   ipcMain.handle("get-displays", async () => {
@@ -30,6 +67,9 @@ function createWindow() {
       console.error("Couldn't find display");
     }
   });
+
+  // Save settings
+  ipcMain.on("save-settings", async () => save(win));
 
   win.loadFile("index.html");
 }
