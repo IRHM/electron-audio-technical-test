@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background-color: darkslateblue;
+  color: white;
+  font-family: sans-serif;
+}
+
+.settingsContainer {
+  display: flex;
+  justify-content: center;
+  margin: 15px;
+}
+
+.settings {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  max-width: 500px;
+}
+
+.settings h2 {
+  margin-bottom: 20px;
+}
+
+.settings h3 {
+  margin-bottom: 5px;
+}
+
+.settings select {
+  padding: 5px;
+  margin-bottom: 15px;
+  border: 0;
+  border-radius: 4px;
+}
