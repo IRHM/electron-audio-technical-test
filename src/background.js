@@ -27,6 +27,8 @@ async function save(win) {
 async function load(win) {
   fs.access("./settings.json", constants.F_OK)
     .then(async () => {
+      console.log("Reading settings");
+
       const settings = JSON.parse(await fs.readFile("./settings.json"));
 
       let setStr = "";
